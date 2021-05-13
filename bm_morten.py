@@ -227,12 +227,13 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
     return energy, [EnergyDer_a,EnergyDer_b,EnergyDer_w]
 
 
+tot_time = time.time()
 #Here starts the main program with variable declarations
 NumberParticles = 2
 Dimension = 2
 NumberHidden = 2
 
-interaction=False
+interaction=True
 
 # guess for parameters
 a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
@@ -245,7 +246,7 @@ Energy = 0
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
 eta = 0.001
-MaxIterations = 10
+MaxIterations = 100
 iteration = 0
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
@@ -282,3 +283,8 @@ data ={'Energy':Energies, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B De
 
 frame = pd.DataFrame(data)
 print(frame)
+print("Total elapsed time: {}s".format(time.time() - tot_time))
+
+
+
+

@@ -246,7 +246,7 @@ Energy = 0
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
 eta = 0.001
-MaxIterations = 100
+MaxIterations = 50
 iteration = 0
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
@@ -254,8 +254,13 @@ times = np.zeros(MaxIterations)
 EnergyDerivatives1 = np.zeros(MaxIterations)
 EnergyDerivatives2 = np.zeros(MaxIterations)
 
+perc = -1
+message = 'PROGRESS'
 
 for iteration in range(MaxIterations):
+    if int(100*iteration/MaxIterations) > perc:
+        perc = int(100*iteration/MaxIterations)
+        print(f'\r{message} {perc:3.0f}%', end = '')
     timing = time.time()
     
     Energy, EDerivative = EnergyMinimization(a,b,w)
@@ -274,6 +279,7 @@ for iteration in range(MaxIterations):
     #EnergyDerivatives3[iter] = EDerivative[2] 
 
 
+print(f'\r{message} {100:3.0f}%')
 
 #nice printout with Pandas
 import pandas as pd

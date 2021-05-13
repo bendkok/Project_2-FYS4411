@@ -22,7 +22,7 @@ import time
 
 # Trial wave function for the 2-electron quantum dot in two dims
 @nb.njit
-def WaveFunction(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
+def WaveFunction(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> float:
     # sigma=1.0
     # sig2 = 1 #sigma**2
     Psi1 = 0.0
@@ -43,7 +43,7 @@ def WaveFunction(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
 
 # Local energy  for the 2-electron quantum dot in two dims, using analytical local energy
 @nb.njit
-def LocalEnergy(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
+def LocalEnergy(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> float:
     # sigma=1.0
     # sig2 = sigma**2
     locenergy = 0.0
@@ -77,7 +77,7 @@ def LocalEnergy(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
 
 # Derivate of wave function ansatz as function of variational parameters
 @nb.njit
-def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
+def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
     
     # sigma=1.0
     # sig2 = sigma**2
@@ -103,7 +103,7 @@ def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
 
 # Setting up the quantum force for the two-electron quantum dot, recall that it is a vector
 @nb.njit
-def QuantumForce(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
+def QuantumForce(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> np.ndarray:
 
     # sigma=1.0
     # sig2 = sigma**2
@@ -122,7 +122,7 @@ def QuantumForce(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray):
     return qforce
 
 @nb.njit
-def Qfac(r:np.ndarray,b:np.ndarray,w:np.ndarray):
+def Qfac(r:np.ndarray,b:np.ndarray,w:np.ndarray) -> np.ndarray:
     Q = np.zeros((NumberHidden), np.double)
     temp = np.zeros((NumberHidden), np.double)
     
@@ -134,8 +134,8 @@ def Qfac(r:np.ndarray,b:np.ndarray,w:np.ndarray):
     return Q
     
 # Computing the derivative of the energy and the energy 
-@nb.njit
-def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray):
+# @nb.njit
+def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
     NumberMCcycles= 10000
     # Parameters in the Fokker-Planck simulation of the quantum force
     D = 0.5
@@ -240,8 +240,9 @@ b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
 w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
 # Set up iteration using stochastic gradient method
 Energy = 0
-EDerivative = np.empty((3,),dtype=object)
-EDerivative = [np.copy(a),np.copy(b),np.copy(w)]
+# EDerivative = np.empty((3,),dtype=object)
+# EDerivative = [np.copy(a),np.copy(b),np.copy(w)]
+EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
 eta = 0.001
 MaxIterations = 10
@@ -251,6 +252,7 @@ Energies = np.zeros(MaxIterations)
 times = np.zeros(MaxIterations)
 EnergyDerivatives1 = np.zeros(MaxIterations)
 EnergyDerivatives2 = np.zeros(MaxIterations)
+
 
 for iteration in range(MaxIterations):
     timing = time.time()

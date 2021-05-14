@@ -231,6 +231,7 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
 
 tot_time = time.time()
 #Here starts the main program with variable declarations
+np.random.seed(2)
 NumberParticles = 2
 Dimension = 2
 NumberHidden = 2
@@ -264,7 +265,7 @@ momentum_b = np.zeros_like(b)
 momentum_w = np.zeros_like(w)
 
 perc = -1
-message = 'PROGRESS'
+message = 'PROGRESS:'
 
 for iteration in range(MaxIterations):
     if int(100*iteration/MaxIterations) > perc:

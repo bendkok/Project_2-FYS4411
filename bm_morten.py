@@ -203,24 +203,26 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
         DeltaE = LocalEnergy(PositionOld,a,b,w)
         DerPsi = DerivativeWFansatz(PositionOld,a,b,w)
         
-        DeltaPsi_a += DerPsi[0]
-        DeltaPsi_b += DerPsi[1]
-        DeltaPsi_w += DerPsi[2]
-        
-        energy += DeltaE
-
-        DerivativePsiE_a += DerPsi[0]*DeltaE
-        DerivativePsiE_b += DerPsi[1]*DeltaE
-        DerivativePsiE_w += DerPsi[2]*DeltaE
+        if MCcycle > NumberMCcycles*equ_frac:
+            DeltaPsi_a += DerPsi[0]
+            DeltaPsi_b += DerPsi[1]
+            DeltaPsi_w += DerPsi[2]
+            
+            energy += DeltaE
+    
+            DerivativePsiE_a += DerPsi[0]*DeltaE
+            DerivativePsiE_b += DerPsi[1]*DeltaE
+            DerivativePsiE_w += DerPsi[2]*DeltaE
             
     # We calculate mean values
-    energy /= NumberMCcycles
-    DerivativePsiE_a /= NumberMCcycles
-    DerivativePsiE_b /= NumberMCcycles
-    DerivativePsiE_w /= NumberMCcycles
-    DeltaPsi_a /= NumberMCcycles
-    DeltaPsi_b /= NumberMCcycles
-    DeltaPsi_w /= NumberMCcycles
+    fraq = NumberMCcycles-NumberMCcycles*equ_frac
+    energy /= fraq
+    DerivativePsiE_a /= fraq
+    DerivativePsiE_b /= fraq
+    DerivativePsiE_w /= fraq
+    DeltaPsi_a /= fraq
+    DeltaPsi_b /= fraq
+    DeltaPsi_w /= fraq
     EnergyDer_a  = 2*(DerivativePsiE_a-DeltaPsi_a*energy)
     EnergyDer_b  = 2*(DerivativePsiE_b-DeltaPsi_b*energy)
     EnergyDer_w  = 2*(DerivativePsiE_w-DeltaPsi_w*energy)
@@ -288,6 +290,7 @@ data ={'Energy':Energies, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B De
 
 frame = pd.DataFrame(data)
 print(frame)
+print("average energy: {}".format(np.mean(Energies)))
 print("Total elapsed time: {}s".format(time.time() - tot_time))
 
 

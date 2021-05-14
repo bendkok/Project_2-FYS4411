@@ -56,7 +56,7 @@ def LocalEnergy(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> float:
             sum2 = 0.0
             for ih in range(NumberHidden):
                 sum1 += w[iq,ix,ih]/(1+np.exp(-Q[ih]))
-                sum2 += w[iq,ix,ih]**2 * np.exp(Q[ih]) / (1.0 + np.exp(Q[ih]))**2
+                sum2 += w[iq,ix,ih]**2 * np.exp(-Q[ih]) / (1.0 + np.exp(-Q[ih]))**2 #minustegn?
     
             # dlnpsi1 = -(r[iq,ix] - a[iq,ix]) /sig2 + sum1/sig2
             # dlnpsi2 = -1/sig2 + sum2/sig2**2
@@ -234,6 +234,7 @@ tot_time = time.time()
 NumberParticles = 2
 Dimension = 2
 NumberHidden = 2
+equ_frac = 0.1
 
 interaction=True
 
@@ -241,6 +242,9 @@ interaction=True
 a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
 b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
 w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
+# a=np.zeros(shape=(NumberParticles,Dimension))
+# b=np.zeros(shape=(NumberHidden))
+# w=np.zeros(shape=(NumberParticles,Dimension,NumberHidden))
 # Set up iteration using stochastic gradient method
 Energy = 0
 # EDerivative = np.empty((3,),dtype=object)
@@ -248,12 +252,16 @@ Energy = 0
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
 eta = 0.001
-MaxIterations = 10
+MaxIterations = 20
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
 times = np.zeros(MaxIterations)
 EnergyDerivatives1 = np.zeros(MaxIterations)
 EnergyDerivatives2 = np.zeros(MaxIterations)
+gamma = 0.9
+momentum_a = np.zeros_like(a)
+momentum_b = np.zeros_like(b)
+momentum_w = np.zeros_like(w)
 
 perc = -1
 message = 'PROGRESS'
@@ -264,13 +272,16 @@ for iteration in range(MaxIterations):
         print(f'\r{message} {perc:3.0f}%', end = '')
     timing = time.time()
     
-    Energy, EDerivative = EnergyMinimization(a,b,w)
+    Energy, EDerivative = EnergyMinimization(a-momentum_a*gamma,b-momentum_b*gamma,w-momentum_w*gamma)
     agradient = EDerivative[0]
     bgradient = EDerivative[1]
     wgradient = EDerivative[2]
-    a -= eta*agradient
-    b -= eta*bgradient 
-    w -= eta*wgradient 
+    momentum_a = momentum_a*gamma + eta*agradient
+    momentum_b = momentum_b*gamma + eta*bgradient
+    momentum_w = momentum_w*gamma + eta*wgradient
+    a -= momentum_a
+    b -= momentum_b
+    w -= momentum_w
     Energies[iteration] = Energy
     times[iteration] = time.time() - timing
     
@@ -290,7 +301,7 @@ data ={'Energy':Energies, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B De
 
 frame = pd.DataFrame(data)
 print(frame)
-print("average energy: {}".format(np.mean(Energies)))
+print("Average energy: {}. Lowest: {}".format(np.mean(Energies), np.min(Energies)))
 print("Total elapsed time: {}s".format(time.time() - tot_time))
 
 

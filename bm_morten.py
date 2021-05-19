@@ -252,8 +252,8 @@ Energy = 0
 # EDerivative = [np.copy(a),np.copy(b),np.copy(w)]
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
-eta = 0.001
-MaxIterations = 60
+eta = 0.1
+MaxIterations = 30
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
 times = np.zeros(MaxIterations)

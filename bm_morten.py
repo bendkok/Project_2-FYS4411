@@ -98,8 +98,7 @@ def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> t
     nev = 1 + np.exp(-Q) #todo: test if correct
     WfDer_b = 1 / nev
     WfDer_w = w / nev
-    # WfDer_w = r / nev
-            
+                
     return  WfDer_a, WfDer_b, WfDer_w
 
 # Setting up the quantum force for the two-electron quantum dot, recall that it is a vector

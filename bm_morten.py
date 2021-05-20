@@ -98,7 +98,7 @@ def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> t
     nev = 1 + np.exp(-Q) #todo: test if correct
     WfDer_b = 1 / nev
     WfDer_w = w / nev
-                
+
     return  WfDer_a, WfDer_b, WfDer_w
 
 # Setting up the quantum force for the two-electron quantum dot, recall that it is a vector
@@ -274,12 +274,12 @@ for iteration in range(MaxIterations):
     timing = time.time()
     
     Energy, EDerivative = EnergyMinimization(a-momentum_a*gamma,b-momentum_b*gamma,w-momentum_w*gamma)
-    agradient = EDerivative[0]
-    bgradient = EDerivative[1]
-    wgradient = EDerivative[2]
-    momentum_a = momentum_a*gamma + eta*agradient
-    momentum_b = momentum_b*gamma + eta*bgradient
-    momentum_w = momentum_w*gamma + eta*wgradient
+    # agradient = EDerivative[0]
+    # bgradient = EDerivative[1]
+    # wgradient = EDerivative[2]
+    momentum_a = momentum_a*gamma + eta*EDerivative[0]
+    momentum_b = momentum_b*gamma + eta*EDerivative[1]
+    momentum_w = momentum_w*gamma + eta*EDerivative[2]
     a -= momentum_a
     b -= momentum_b
     w -= momentum_w

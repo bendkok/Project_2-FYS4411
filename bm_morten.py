@@ -240,9 +240,12 @@ equ_frac = 0.1
 interaction=True
 
 # guess for parameters
-a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
-b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
-w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
+# a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
+# b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
+# w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
+a=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension))
+b=np.random.normal(loc=0.0, scale=.5, size=(NumberHidden))
+w=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension,NumberHidden))
 # a=np.zeros(shape=(NumberParticles,Dimension))
 # b=np.zeros(shape=(NumberHidden))
 # w=np.zeros(shape=(NumberParticles,Dimension,NumberHidden))
@@ -305,6 +308,8 @@ print(frame)
 print("Average energy: {}. Lowest: {}".format(np.mean(Energies), np.min(Energies)))
 print("Total elapsed time: {}s".format(time.time() - tot_time))
 
-
+print(a)
+print(b)
+print(w)
 
 

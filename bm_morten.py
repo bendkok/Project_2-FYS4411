@@ -243,22 +243,20 @@ interaction=True
 # a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
 # b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
 # w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
-a=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension))
-b=np.random.normal(loc=0.0, scale=.5, size=(NumberHidden))
-w=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension,NumberHidden))
-# a=np.zeros(shape=(NumberParticles,Dimension))
-# b=np.zeros(shape=(NumberHidden))
-# w=np.zeros(shape=(NumberParticles,Dimension,NumberHidden))
+a=np.random.normal(loc=0.0, scale=1, size=(NumberParticles,Dimension))
+b=np.random.normal(loc=0.0, scale=1, size=(NumberHidden))
+w=np.random.normal(loc=0.0, scale=1, size=(NumberParticles,Dimension,NumberHidden))
+
 # Set up iteration using stochastic gradient method
 Energy = 0
-# EDerivative = np.empty((3,),dtype=object)
-# EDerivative = [np.copy(a),np.copy(b),np.copy(w)]
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
+
 # Learning rate eta, max iterations, need to change to adaptive learning rate
-eta = 0.1
-MaxIterations = 30
+eta = 0.05
+MaxIterations = 50
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
+da = np.zeros(MaxIterations)
 times = np.zeros(MaxIterations)
 EnergyDerivatives1 = np.zeros(MaxIterations)
 EnergyDerivatives2 = np.zeros(MaxIterations)
@@ -277,22 +275,19 @@ for iteration in range(MaxIterations):
     timing = time.time()
     
     Energy, EDerivative = EnergyMinimization(a-momentum_a*gamma,b-momentum_b*gamma,w-momentum_w*gamma)
-    # agradient = EDerivative[0]
-    # bgradient = EDerivative[1]
-    # wgradient = EDerivative[2]
+    # Energy, EDerivative = EnergyMinimization(a,b,w)
+
     momentum_a = momentum_a*gamma + eta*EDerivative[0]
     momentum_b = momentum_b*gamma + eta*EDerivative[1]
     momentum_w = momentum_w*gamma + eta*EDerivative[2]
     a -= momentum_a
     b -= momentum_b
     w -= momentum_w
+
     Energies[iteration] = Energy
+    da[iteration] = np.sum(np.abs(momentum_a))
     times[iteration] = time.time() - timing
     
-    # print("Energy:",Energy)
-    #EnergyDerivatives1[iter] = EDerivative[0] 
-    #EnergyDerivatives2[iter] = EDerivative[1]
-    #EnergyDerivatives3[iter] = EDerivative[2] 
 
 
 print(f'\r{message} {100:3.0f}%')
@@ -301,7 +296,7 @@ print(f'\r{message} {100:3.0f}%')
 import pandas as pd
 from pandas import DataFrame
 pd.set_option('max_columns', 6)
-data ={'Energy':Energies, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B Derivative':EnergyDerivatives2,'Weights Derivative':EnergyDerivatives3}
+data ={'Energy':Energies, 'da':da, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B Derivative':EnergyDerivatives2,'Weights Derivative':EnergyDerivatives3}
 
 frame = pd.DataFrame(data)
 print(frame)

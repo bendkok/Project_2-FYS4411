@@ -1,8 +1,10 @@
 # Common imports
 import os
 
+#src: https://github.com/CompPhysics/ComputationalPhysics2/blob/gh-pages/doc/Programs/BoltzmannMachines/VMC/python/block.py
+
 # Where to save the figures and data files
-DATA_ID = "Results/EnergyMin"
+DATA_ID = ""
 
 def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
@@ -28,7 +30,7 @@ def block(x):
         # estimate variance of x
         s[i] = var(x)
         # perform blocking transformation
-        x = 0.5*(x[0::2] + x[1::2])
+        x = 0.5*(x[0::-2] + x[1::-1])
    
     # generate the test observator M_k from the theorem
     M = (cumsum( ((gamma/s)**2*2**arange(1,d+1)[::-1])[::-1] )  )[::-1]

@@ -13,13 +13,14 @@ infile = open(data_path("Energies.dat"),'r')
 
 from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, sqrt
 from numpy.linalg import inv
+import numpy as np
 
 def block(x):
     # preliminaries
     n = len(x)
     d = int(log2(n))
     s, gamma = zeros(d), zeros(d)
-    mu = mean(x)
+    mu = np.mean(x)
 
     # estimate the auto-covariance and variances 
     # for each blocking transformation
@@ -30,7 +31,8 @@ def block(x):
         # estimate variance of x
         s[i] = var(x)
         # perform blocking transformation
-        x = 0.5*(x[0::-2] + x[1::-1])
+        # print(x, len(x))
+        x = 0.5*(x[0:-1:2] + x[1::2])
    
     # generate the test observator M_k from the theorem
     M = (cumsum( ((gamma/s)**2*2**arange(1,d+1)[::-1])[::-1] )  )[::-1]
@@ -46,20 +48,57 @@ def block(x):
         print("Warning: Use more data")
     return mu, s[k]/2**(d-k)
 
-
-x = loadtxt(infile)
-(mean, var) = block(x) 
-std = sqrt(var)
 import pandas as pd
-from pandas import DataFrame
-data ={'Mean':[mean], 'STDev':[std]}
-frame = pd.DataFrame(data,index=['Values'])
+
+
+xinpu = loadtxt(infile)
+
+(mean0, var0) = block(xinpu) 
+std0 = sqrt(var0)
+# mean.append(mean0)
+# std.append(std0)
+
+data ={'Mean':[mean0], 'STDev':[std0]}
+frame_full = pd.DataFrame(data,index=['Values'])
+
+
+c = int(len(xinpu)/8999)
+xx = zeros((c, 8999))
+mean = zeros(c) 
+std = zeros(c)
+for i in range(c):
+    xx[i] = xinpu[i*8999:(i+1)*8999]
+
+for i in range(c):
+    (mean0, var0) = block(xx[i]) 
+    std0 = sqrt(var0)
+    mean[i] = mean0
+    std[i] = std0
+
+pd.set_option('max_columns', 6)
+
+data ={'Mean':mean, 'STDev':std}
+# frame = pd.DataFrame(data,index=['Values'])
+frame = pd.DataFrame(data)
 print(frame)
+print(frame_full)
 
+np.savetxt("block_res.dat", (mean, std))
+print("Lowest mean energy was {} at iteration {}.".format(  min(mean), np.where(mean==min(mean))[0][0] )) 
+print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(std))[0][0])) 
 
+import matplotlib.pyplot as plt
 
+plt.plot(range(c), mean)
+plt.xlabel("Iteration")
+plt.ylabel("Mean Energy")
+plt.grid()
+plt.show()
 
-
-
+plt.plot(range(c), std)
+plt.xlabel("Iteration")
+plt.ylabel("STD Energy")
+plt.grid()
+plt.show()
 
 

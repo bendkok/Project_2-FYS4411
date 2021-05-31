@@ -18,7 +18,7 @@ import numpy as np
 import numba as nb
 import time
 
-
+outfile = open("Energies.dat",'w')
 
 # Trial wave function for the 2-electron quantum dot in two dims
 @nb.njit
@@ -136,7 +136,6 @@ def Qfac(r:np.ndarray,b:np.ndarray,w:np.ndarray) -> np.ndarray:
 # Computing the derivative of the energy and the energy 
 # @nb.njit
 def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
-    NumberMCcycles= 10000
     # Parameters in the Fokker-Planck simulation of the quantum force
     D = 0.5
     TimeStep = 0.05
@@ -209,6 +208,8 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
             DeltaPsi_w += DerPsi[2]
             
             energy += DeltaE
+            if Printout: 
+                outfile.write('%f\n' %(energy/(MCcycle-int(NumberMCcycles*equ_frac)+1.0)))
     
             DerivativePsiE_a += DerPsi[0]*DeltaE
             DerivativePsiE_b += DerPsi[1]*DeltaE
@@ -254,6 +255,8 @@ EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 # Learning rate eta, max iterations, need to change to adaptive learning rate
 eta = 0.05
 MaxIterations = 100
+NumberMCcycles = 10000
+Printout = True
 np.seterr(invalid='raise')
 Energies = np.zeros(MaxIterations)
 da = np.zeros(MaxIterations)
@@ -303,9 +306,10 @@ print(frame)
 print("Average energy: {}. Lowest: {}".format(np.mean(Energies), np.min(Energies)))
 print("Total elapsed time: {}s".format(time.time() - tot_time))
 
-print(a)
-print(b)
-print(w)
+outfile.close()
 
-np.savetxt("Energies.dat", Energies)
+# print(a)
+# print(b)
+# print(w)
+
 

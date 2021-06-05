@@ -10,12 +10,11 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-interaction=True
+interaction=False
 #save and load files based upon wheter we use interaction or not
 infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 
-from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, sqrt
-from numpy.linalg import inv
+from numpy import log2, zeros, var, sum, loadtxt, arange, array, cumsum, sqrt
 import numpy as np
 
 def block(x):
@@ -86,11 +85,12 @@ np.savetxt("res/block_res_"+str(interaction)+".dat", (mean, std))
 print("Lowest mean energy was {} at iteration {}.".format(  min(mean), np.where(mean==min(mean))[0][0] )) 
 print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(std))[0][0])) 
 
+
 import matplotlib.pyplot as plt
 
 plt.plot(range(c), mean)
 plt.xlabel("Iteration")
-plt.ylabel("Mean Energy")
+plt.ylabel(r'$\langle  E \rangle$')
 plt.grid()
 plt.savefig("res/m_energy_"+str(interaction)+".pdf")
 plt.show()

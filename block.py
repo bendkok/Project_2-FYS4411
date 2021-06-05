@@ -10,7 +10,8 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-interaction=False
+interaction=True
+#save and load files based upon wheter we use interaction or not
 infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 
 from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, sqrt
@@ -33,7 +34,6 @@ def block(x):
         # estimate variance of x
         s[i] = var(x)
         # perform blocking transformation
-        # print(x, len(x))
         x = 0.5*(x[0:-1:2] + x[1::2])
    
     # generate the test observator M_k from the theorem
@@ -57,8 +57,6 @@ xinpu = loadtxt(infile)
 
 (mean0, var0) = block(xinpu) 
 std0 = sqrt(var0)
-# mean.append(mean0)
-# std.append(std0)
 
 data ={'Mean':[mean0], 'STDev':[std0]}
 frame_full = pd.DataFrame(data,index=['Values'])
@@ -80,12 +78,10 @@ for i in range(c):
 pd.set_option('max_columns', 6)
 
 data ={'Mean':mean, 'STDev':std}
-# frame = pd.DataFrame(data,index=['Values'])
 frame = pd.DataFrame(data)
 print(frame)
 print(frame_full)
 
-# "Energies_"+str(interaction)+".dat"
 np.savetxt("res/block_res_"+str(interaction)+".dat", (mean, std))
 print("Lowest mean energy was {} at iteration {}.".format(  min(mean), np.where(mean==min(mean))[0][0] )) 
 print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(std))[0][0])) 

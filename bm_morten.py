@@ -18,9 +18,12 @@ import numpy as np
 import numba as nb
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
+from pandas import DataFrame
 
 
-interaction=False
+interaction=True
+#savefile is based upon wheter we use interaction or not
 outfile = open("res/Energies_"+str(interaction)+".dat",'w')
 
 # Trial wave function for the 2-electron quantum dot in two dims
@@ -61,8 +64,6 @@ def LocalEnergy(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> float:
                 sum1 += w[iq,ix,ih]/(1+np.exp(-Q[ih]))
                 sum2 += w[iq,ix,ih]**2 * np.exp(-Q[ih]) / (1.0 + np.exp(-Q[ih]))**2 #minustegn?
     
-            # dlnpsi1 = -(r[iq,ix] - a[iq,ix]) /sig2 + sum1/sig2
-            # dlnpsi2 = -1/sig2 + sum2/sig2**2
             dlnpsi1 = -(r[iq,ix] - a[iq,ix]) + sum1
             dlnpsi2 = -1 + sum2
             locenergy += 0.5*(-dlnpsi1*dlnpsi1 - dlnpsi2 + r[iq,ix]**2)
@@ -87,18 +88,8 @@ def DerivativeWFansatz(r:np.ndarray,a:np.ndarray,b:np.ndarray,w:np.ndarray) -> t
     
     Q = Qfac(r,b,w)
     
-    # WfDer = np.empty((3,),dtype=object)
-    # WfDer = [np.copy(a),np.copy(b),np.copy(w)]
-    # WfDer = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
-    
-    # WfDer[0] = (r-a)#/sig2
-    # WfDer[1] = 1 / (1 + np.exp(-Q))
-    
-    # for ih in range(NumberHidden):
-    #     WfDer[2][:,:,ih] = w[:,:,ih] / (sig2*(1+np.exp(-Q[ih])))
-    
     WfDer_a = r-a
-    nev = 1 + np.exp(-Q) #todo: test if correct
+    nev = 1 + np.exp(-Q) 
     WfDer_b = 1 / nev
     WfDer_w = w / nev
 
@@ -154,16 +145,9 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
     energy = 0.0
     DeltaE = 0.0
 
-    # EnergyDer = np.empty((3,),dtype=object)
-    # DeltaPsi = np.empty((3,),dtype=object)
-    # DerivativePsiE = np.empty((3,),dtype=object)
-    # EnergyDer = [np.copy(a),np.copy(b),np.copy(w)]
     EnergyDer_a,EnergyDer_b,EnergyDer_w = np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)
     DeltaPsi_a,DeltaPsi_b,DeltaPsi_w = np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)
     DerivativePsiE_a,DerivativePsiE_b,DerivativePsiE_w = np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)
-    # for i in range(3): EnergyDer[i].fill(0.0)
-    # for i in range(3): DeltaPsi[i].fill(0.0)
-    # for i in range(3): DerivativePsiE[i].fill(0.0)
 
     
     #Initial position
@@ -197,11 +181,8 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
                     PositionOld[i,j] = PositionNew[i,j]
                     QuantumForceOld[i,j] = QuantumForceNew[i,j]
                 wfold = wfnew
-        #print("wf new:        ", wfnew)
-        #print("force on 1 new:", QuantumForceNew[0,:])
-        #print("pos of 1 new:  ", PositionNew[0,:])
-        #print("force on 2 new:", QuantumForceNew[1,:])
-        #print("pos of 2 new:  ", PositionNew[1,:])
+
+        
         DeltaE = LocalEnergy(PositionOld,a,b,w)
         DerPsi = DerivativeWFansatz(PositionOld,a,b,w)
         
@@ -246,9 +227,9 @@ equ_frac = 0.1
 # a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
 # b=np.random.normal(loc=0.0, scale=0.001, size=(NumberHidden))
 # w=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension,NumberHidden))
-a=np.random.normal(loc=0.0, scale=1, size=(NumberParticles,Dimension))
-b=np.random.normal(loc=0.0, scale=1, size=(NumberHidden))
-w=np.random.normal(loc=0.0, scale=1, size=(NumberParticles,Dimension,NumberHidden))
+a=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension))
+b=np.random.normal(loc=0.0, scale=.5, size=(NumberHidden))
+w=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension,NumberHidden))
 
 # Set up iteration using stochastic gradient method
 Energy = 0
@@ -298,8 +279,6 @@ for iteration in range(MaxIterations):
 print(f'\r{message} {100:3.0f}%')
 
 #nice printout with Pandas
-import pandas as pd
-from pandas import DataFrame
 pd.set_option('max_columns', 6)
 data ={'Energy':Energies, 'da':da, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B Derivative':EnergyDerivatives2,'Weights Derivative':EnergyDerivatives3}
 

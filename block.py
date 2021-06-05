@@ -22,7 +22,8 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-infile = open(data_path("Energies.dat"), 'r')
+#infile = open(data_path("Energies.dat"), 'r')
+infile = open(data_path("class_test.dat"), 'r')
 
 from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, sqrt
 from numpy.linalg import inv

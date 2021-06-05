@@ -4,6 +4,8 @@ from random import random, seed, normalvariate
 import time
 import pandas as pd
 from pandas import DataFrame
+from dataclasses import dataclass
+import numerical as num
 
 np.random.seed(2)
 
@@ -13,6 +15,8 @@ class Boltzmann_Machine:
         self.particles = 2
         self.hidden = 2
         self.dimension = 2
+
+        self.system = np.array([self.particles, self.dimension, self.hidden], dtype=np.int64)
         self.interaction = True
         self.print_out = True
         self.equilibration_fraction = 0.1
@@ -33,113 +37,19 @@ class Boltzmann_Machine:
         self.print_out = x
 
     def Qfac(self, r: np.ndarray, b: np.ndarray, w: np.ndarray) -> np.ndarray:
-        hidden = self.hidden
-
-        Q = np.zeros((hidden), np.double)
-        temp = np.zeros((hidden), np.double)
-        """
-        for ih in range(hidden):
-            temp[ih] = (r * w[:, :, ih]).sum()"""
-        temp = self.QFac_helper(r, b, w, temp, self.hidden)
-
-        Q = b + temp
+        Q = num.QFac_helper(r, b, w, self.hidden) + b
 
         return Q
 
-    @staticmethod
-    @nb.njit
-    def QFac_helper(r, b, w, temp, hidden):
-        for ih in range(hidden):
-            temp[ih] = (r * w[:, :, ih]).sum()
-        return temp
-
     def wave_function(self, r:np.ndarray, a:np.ndarray, b:np.ndarray, w:np.ndarray) -> float:
-        Psi1 = 0.0
-        Psi2 = 1.0
         Q = self.Qfac(r, b, w)
-        """
-        for iq in range(self.particles):
-            for ix in range(self.dimension):
-                Psi1 += (r[iq, ix] - a[iq, ix])**2
 
-        for ih in range(self.hidden):
-            Psi2 *= (1.0 + np.exp(Q[ih]))"""
-
-        Psi1, Psi2 = self.wave_function_helper(self.particles, self.dimension, self.hidden, r, a, b, w, Q)
-        Psi1 = np.exp(-Psi1 / 2)
-
-        return Psi1 * Psi2
-
-    @staticmethod
-    @nb.njit
-    def wave_function_helper(p, d, h, r, a, b, w, Q):
-        Psi1 = 0.0
-        Psi2 = 1.0
-        for iq in range(p):
-            for ix in range(d):
-                Psi1 += (r[iq, ix] - a[iq, ix])**2
-
-        for ih in range(h):
-            Psi2 *= (1.0 + np.exp(Q[ih]))
-
-        return Psi1, Psi2
+        return num.wave_function_helper(self.system, r, a, b, w, Q)
 
     def local_energy(self, r: np.ndarray, a: np.ndarray, b: np.ndarray, w: np.ndarray) -> float:
-        # sigma=1.0
-        # sig2 = sigma**2
-        locenergy = 0.0
-
         Q = self.Qfac(r, b, w)
-        """for iq in range(self.particles):
-            for ix in range(self.dimension):
-                sum1 = 0.0
-                sum2 = 0.0
-                for ih in range(self.hidden):
-                    sum1 += w[iq, ix, ih] / (1 + np.exp(-Q[ih]))
-                    sum2 += w[iq, ix, ih]**2 * np.exp(-Q[ih]) / (1.0 + np.exp(-Q[ih]))**2
 
-                dlnpsi1 = -(r[iq, ix] - a[iq, ix]) + sum1
-                dlnpsi2 = -1 + sum2
-                locenergy += 0.5 * (- pow(dlnpsi1, 2) - dlnpsi2 + r[iq, ix]**2)
-
-        if(self.interaction is True):
-            for iq1 in range(self.particles):
-                for iq2 in range(iq1):
-                    distance = 0.0
-                    for ix in range(self.dimension):
-                        distance += (r[iq1, ix] - r[iq2, ix])**2
-
-                    locenergy += (1 / np.sqrt(distance))"""
-
-        return self.local_energy_helper(self.particles, self.dimension, self.hidden, r, a, b, w, Q, self.interaction)
-
-    @staticmethod
-    @nb.njit
-    def local_energy_helper(p, d, h, r, a, b, w, Q, interaction):
-        locenergy = 0.0
-
-        for iq in range(p):
-            for ix in range(d):
-                sum1 = 0.0
-                sum2 = 0.0
-                for ih in range(h):
-                    sum1 += w[iq, ix, ih] / (1 + np.exp(-Q[ih]))
-                    sum2 += w[iq, ix, ih]**2 * np.exp(-Q[ih]) / (1.0 + np.exp(-Q[ih]))**2
-
-                dlnpsi1 = -(r[iq, ix] - a[iq, ix]) + sum1
-                dlnpsi2 = -1 + sum2
-                locenergy += 0.5 * (- pow(dlnpsi1, 2) - dlnpsi2 + r[iq, ix]**2)
-
-        if(interaction is True):
-            for iq1 in range(p):
-                for iq2 in range(iq1):
-                    distance = 0.0
-                    for ix in range(d):
-                        distance += (r[iq1, ix] - r[iq2, ix])**2
-
-                    locenergy += (1 / np.sqrt(distance))
-
-        return locenergy
+        return num.local_energy_helper(self.system, r, a, b, w, Q, self.interaction)
 
     def wave_function_derivatives(self, r: np.ndarray, a: np.ndarray, b: np.ndarray, w: np.ndarray) -> tuple:
         Q = self.Qfac(r, b, w)
@@ -152,28 +62,9 @@ class Boltzmann_Machine:
         return WfDer_a, WfDer_b, WfDer_w
 
     def quantum_force(self, r: np.ndarray, a: np.ndarray, b: np.ndarray, w: np.ndarray) -> np.ndarray:
-        qforce = np.zeros((self.particles, self.dimension), np.double)
-        sum1 = np.zeros((self.particles, self.dimension), np.double)
-
         Q = self.Qfac(r, b, w)
-        """
-        for ih in range(self.hidden):
-            sum1 += w[:, :, ih] / (1 + np.exp(-Q[ih]))
 
-        qforce = 2 * (-(r - a) + sum1)
-
-        return qforce"""
-        return self.quantum_force_helper(self.particles, self.dimension, self.hidden, r, a, b, w, Q)
-
-    @staticmethod
-    @nb.njit
-    def quantum_force_helper(p, d, h, r, a, b, w, Q):
-        sum1 = np.zeros((p, d), np.double)
-
-        for ih in range(h):
-            sum1 += w[:, :, ih] / (1 + np.exp(-Q[ih]))
-
-        return (2 * (-(r - a) + sum1))
+        return num.quantum_force_helper(self.system, r, a, b, w, Q)
 
 
     def energy_minimization(self, a: np.ndarray, b: np.ndarray, w: np.ndarray) -> tuple:
@@ -182,64 +73,27 @@ class Boltzmann_Machine:
         TimeStep = 0.05
         # positions
         PositionOld = np.zeros((self.particles, self.dimension), np.double)
-        PositionNew = np.zeros((self.particles, self.dimension), np.double)
         # Quantum force
         QuantumForceOld = np.zeros((self.particles, self.dimension), np.double)
-        QuantumForceNew = np.zeros((self.particles, self.dimension), np.double)
-
-        energy = 0.0
-        DeltaE = 0.0
 
         EnergyDer_a, EnergyDer_b, EnergyDer_w = np.zeros_like(a), np.zeros_like(b), np.zeros_like(w)
-        DeltaPsi_a, DeltaPsi_b, DeltaPsi_w = np.zeros_like(a), np.zeros_like(b), np.zeros_like(w)
-        DerivativePsiE_a, DerivativePsiE_b, DerivativePsiE_w = np.zeros_like(a), np.zeros_like(b), np.zeros_like(w)
 
         #Initial position
-        for i in range(self.particles):
-            for j in range(self.dimension):
-                PositionOld[i, j] = normalvariate(0.0, 1.0) * np.sqrt(TimeStep)
+        PositionOld = num.minimisation_loop1(self.system, PositionOld, TimeStep)
+
         wfold = self.wave_function(PositionOld, a, b, w)
         QuantumForceOld = self.quantum_force(PositionOld, a, b, w)
 
-        #Loop over MC MCcycles
-        for MCcycle in range(self.mc_cycles):
-            #Trial position moving one particle at the time
-            for i in range(self.particles):
-                for j in range(self.dimension):
-                    PositionNew[i, j] = PositionOld[i,j] + normalvariate(0.0, 1.0) * np.sqrt(TimeStep) + QuantumForceOld[i, j] * TimeStep * D
-                wfnew = self.wave_function(PositionNew, a, b, w)
-                QuantumForceNew = self.quantum_force(PositionNew, a, b, w)
+        DerivativePsiE_a, DerivativePsiE_b, DerivativePsiE_w, DeltaPsi_a, DeltaPsi_b, DeltaPsi_w, energy = num.minimisation_loop2(self.system, a, b, w, self.mc_cycles, PositionOld, QuantumForceOld, wfold, TimeStep, self.equilibration_fraction, self.interaction, self.outfile, self.print_out)
 
-                GreensFunction = 0.0
-                for j in range(self.dimension):
-                    GreensFunction += 0.5*(QuantumForceOld[i, j] + QuantumForceNew[i, j])*\
-                                          (D*TimeStep*0.5*(QuantumForceOld[i,j]-QuantumForceNew[i,j])-\
-                                          PositionNew[i,j]+PositionOld[i,j])
+        """
+        DerivativePsiE_a = derivatives[0]
+        DerivativePsiE_b = derivatives[1]
+        DerivativePsiE_w = derivatives[2]
 
-                GreensFunction = np.exp(GreensFunction)
-                ProbabilityRatio = GreensFunction*wfnew**2/wfold**2
-                #Metropolis-Hastings test to see whether we accept the move
-                if random() <= ProbabilityRatio:
-                    for j in range(self.dimension):
-                        PositionOld[i, j] = PositionNew[i, j]
-                        QuantumForceOld[i, j] = QuantumForceNew[i, j]
-                    wfold = wfnew
-
-            DeltaE = self.local_energy(PositionOld, a, b, w)
-            DerPsi = self.wave_function_derivatives(PositionOld, a, b, w)
-
-            if MCcycle > (self.mc_cycles * self.equilibration_fraction):
-                DeltaPsi_a += DerPsi[0]
-                DeltaPsi_b += DerPsi[1]
-                DeltaPsi_w += DerPsi[2]
-
-                energy += DeltaE
-                if self.print_out:
-                    self.outfile.write('%f\n' %(energy / (MCcycle - int(self.mc_cycles * self.equilibration_fraction) + 1.0)))
-
-                DerivativePsiE_a += DerPsi[0] * DeltaE
-                DerivativePsiE_b += DerPsi[1] * DeltaE
-                DerivativePsiE_w += DerPsi[2] * DeltaE
+        DeltaPsi_a = deltas[0]
+        DeltaPsi_b = deltas[1]
+        DeltaPsi_w = deltas[2]"""
 
         # We calculate mean values
         fraq = self.mc_cycles - (self.mc_cycles * self.equilibration_fraction)
@@ -253,8 +107,8 @@ class Boltzmann_Machine:
         EnergyDer_a = 2 * (DerivativePsiE_a - DeltaPsi_a * energy)
         EnergyDer_b = 2 * (DerivativePsiE_b - DeltaPsi_b * energy)
         EnergyDer_w = 2 * (DerivativePsiE_w - DeltaPsi_w * energy)
-        return energy, [EnergyDer_a, EnergyDer_b, EnergyDer_w]
 
+        return energy, [EnergyDer_a, EnergyDer_b, EnergyDer_w]
 
     def write_out(self, da, times):
         message = 'PROGRESS:'

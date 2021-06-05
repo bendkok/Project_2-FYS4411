@@ -235,7 +235,7 @@ w=np.random.normal(loc=0.0, scale=.5, size=(NumberParticles,Dimension,NumberHidd
 Energy = 0
 EDerivative = [np.zeros_like(a),np.zeros_like(b),np.zeros_like(w)]
 
-# Learning rate eta, max iterations, need to change to adaptive learning rate
+# Learning rate eta, max iterations
 eta = 0.05
 MaxIterations = 100
 NumberMCcycles = 10000

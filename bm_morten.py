@@ -22,7 +22,7 @@ import pandas as pd
 from pandas import DataFrame
 
 
-interaction=True
+interaction=False
 #savefile is based upon wheter we use interaction or not
 outfile = open("res/Energies_"+str(interaction)+".dat",'w')
 
@@ -281,6 +281,12 @@ print(f'\r{message} {100:3.0f}%')
 #nice printout with Pandas
 pd.set_option('max_columns', 6)
 data ={'Energy':Energies, 'da':da, 'Time':times}#,'A Derivative':EnergyDerivatives1,'B Derivative':EnergyDerivatives2,'Weights Derivative':EnergyDerivatives3}
+
+
+if interaction:
+    print("Interaction results:")
+else:
+    print("No interaction results:")
 
 frame = pd.DataFrame(data)
 print(frame)

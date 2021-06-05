@@ -10,7 +10,7 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-interaction=False
+interaction=True
 #save and load files based upon wheter we use interaction or not
 infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 
@@ -74,6 +74,13 @@ for i in range(c):
     mean[i] = mean0
     std[i] = std0
 
+
+if interaction:
+    print("Interaction results:")
+else:
+    print("No interaction results:")
+    
+    
 pd.set_option('max_columns', 6)
 
 data ={'Mean':mean, 'STDev':std}

@@ -17,8 +17,11 @@ from random import random, seed, normalvariate
 import numpy as np
 import numba as nb
 import time
+import matplotlib.pyplot as plt
 
-outfile = open("Energies.dat",'w')
+
+interaction=False
+outfile = open("res/Energies_"+str(interaction)+".dat",'w')
 
 # Trial wave function for the 2-electron quantum dot in two dims
 @nb.njit
@@ -238,7 +241,6 @@ Dimension = 2
 NumberHidden = 2
 equ_frac = 0.1
 
-interaction=True
 
 # guess for parameters
 # a=np.random.normal(loc=0.0, scale=0.001, size=(NumberParticles,Dimension))
@@ -308,8 +310,13 @@ print("Total elapsed time: {}s".format(time.time() - tot_time))
 
 outfile.close()
 
-# print(a)
-# print(b)
-# print(w)
+plt.plot(range(0,MaxIterations), Energies)
+plt.grid()
+plt.xlabel("Iteration")
+plt.ylabel("Energy")
+if Printout:
+    plt.savefig("res/energy_"+str(interaction)+".pdf")
+plt.show()
+
 
 

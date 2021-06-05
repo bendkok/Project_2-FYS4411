@@ -9,7 +9,9 @@ DATA_ID = ""
 def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
-infile = open(data_path("Energies.dat"),'r')
+
+interaction=False
+infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 
 from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, sqrt
 from numpy.linalg import inv
@@ -83,7 +85,8 @@ frame = pd.DataFrame(data)
 print(frame)
 print(frame_full)
 
-np.savetxt("block_res.dat", (mean, std))
+# "Energies_"+str(interaction)+".dat"
+np.savetxt("res/block_res_"+str(interaction)+".dat", (mean, std))
 print("Lowest mean energy was {} at iteration {}.".format(  min(mean), np.where(mean==min(mean))[0][0] )) 
 print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(std))[0][0])) 
 
@@ -93,12 +96,14 @@ plt.plot(range(c), mean)
 plt.xlabel("Iteration")
 plt.ylabel("Mean Energy")
 plt.grid()
+plt.savefig("res/m_energy_"+str(interaction)+".pdf")
 plt.show()
 
 plt.plot(range(c), std)
 plt.xlabel("Iteration")
 plt.ylabel("STD Energy")
 plt.grid()
+plt.savefig("res/std_"+str(interaction)+".pdf")
 plt.show()
 
 

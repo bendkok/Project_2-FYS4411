@@ -89,8 +89,8 @@ print(frame)
 print(frame_full)
 
 np.savetxt("res/block_res_"+str(interaction)+".dat", (mean, std))
-print("Lowest mean energy was {} at iteration {}.".format(  min(mean), np.where(mean==min(mean))[0][0] )) 
-print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(std))[0][0])) 
+print("Lowest mean energy was {} at iteration {}, with STD {}.".format(  min(mean), np.where(mean==min(mean))[0][0], std[np.where(mean==min(mean))[0][0]] )) 
+print("Lowest std was {} at iteration {}, with energy {}.".format(min(std), np.where(std==min(std))[0][0], mean[np.where(std==min(std))[0][0]] )) 
 
 
 import matplotlib.pyplot as plt
@@ -113,4 +113,13 @@ plt.legend()
 plt.savefig("res/std_"+str(interaction)+".pdf")
 plt.show()
 
+plt.plot(range(c), std)
+plt.plot(np.where(np.min(std)==std)[0][0], np.min(std), "o", label="Minimum STD of Energy")
+plt.yscale("log")
+plt.xlabel("Iteration")
+plt.ylabel("STD Energy")
+plt.grid()
+plt.legend()
+plt.savefig("res/std_log_"+str(interaction)+".pdf")
+plt.show()
 

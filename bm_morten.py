@@ -22,7 +22,7 @@ import pandas as pd
 from pandas import DataFrame
 
 
-interaction=True
+interaction=False
 #savefile is based upon wheter we use interaction or not
 outfile = open("res/Energies_"+str(interaction)+".dat",'w')
 

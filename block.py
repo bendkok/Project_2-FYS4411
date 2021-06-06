@@ -10,7 +10,7 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-interaction=True
+interaction=False
 #save and load files based upon wheter we use interaction or not
 infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 

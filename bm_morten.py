@@ -22,7 +22,7 @@ import pandas as pd
 from pandas import DataFrame
 
 
-interaction=False
+interaction=True
 #savefile is based upon wheter we use interaction or not
 outfile = open("res/Energies_"+str(interaction)+".dat",'w')
 
@@ -290,15 +290,18 @@ else:
 
 frame = pd.DataFrame(data)
 print(frame)
-print("Average energy: {}. Lowest: {}".format(np.mean(Energies), np.min(Energies)))
+print("Average energy: {}. Lowest: {} at {}.".format(np.mean(Energies), np.min(Energies), np.where(np.min(Energies)==Energies)[0][0]))
 print("Total elapsed time: {}s".format(time.time() - tot_time))
 
 outfile.close()
 
 plt.plot(range(0,MaxIterations), Energies)
+plt.plot(np.where(np.min(Energies)==Energies)[0][0], np.min(Energies), "o", label="Minimum Energy")
 plt.grid()
 plt.xlabel("Iteration")
 plt.ylabel("Energy")
+# plt.legend(["Energy", "Minimum Energy"])
+plt.legend()
 if Printout:
     plt.savefig("res/energy_"+str(interaction)+".pdf")
 plt.show()

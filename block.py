@@ -96,16 +96,20 @@ print("Lowest std was {} at iteration {}.".format(min(std), np.where(std==min(st
 import matplotlib.pyplot as plt
 
 plt.plot(range(c), mean)
+plt.plot(np.where(np.min(mean)==mean)[0][0], np.min(mean), "o", label="Minimum Mean Energy")
 plt.xlabel("Iteration")
 plt.ylabel(r'$\langle  E \rangle$')
 plt.grid()
+plt.legend()
 plt.savefig("res/m_energy_"+str(interaction)+".pdf")
 plt.show()
 
 plt.plot(range(c), std)
+plt.plot(np.where(np.min(std)==std)[0][0], np.min(std), "o", label="Minimum STD of Energy")
 plt.xlabel("Iteration")
 plt.ylabel("STD Energy")
 plt.grid()
+plt.legend()
 plt.savefig("res/std_"+str(interaction)+".pdf")
 plt.show()
 

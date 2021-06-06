@@ -10,7 +10,7 @@ def data_path(dat_id):
     return os.path.join(DATA_ID, dat_id)
 
 
-interaction=True
+interaction=False
 #save and load files based upon wheter we use interaction or not
 infile = open(data_path("res/Energies_"+str(interaction)+".dat"),'r')
 
@@ -97,6 +97,7 @@ import matplotlib.pyplot as plt
 
 plt.plot(range(c), mean)
 plt.plot(np.where(np.min(mean)==mean)[0][0], np.min(mean), "o", label="Minimum Mean Energy")
+plt.plot(np.where(np.min(std)==std)[0][0], mean[np.where(np.min(std)==std)[0][0]], "o", label="Minimum STD of Energy")
 plt.xlabel("Iteration")
 plt.ylabel(r'$\langle  E \rangle$')
 plt.grid()
@@ -105,6 +106,7 @@ plt.savefig("res/m_energy_"+str(interaction)+".pdf")
 plt.show()
 
 plt.plot(range(c), std)
+plt.plot(np.where(np.min(mean)==mean)[0][0], std[np.where(np.min(mean)==mean)[0][0]], "o", label="Minimum Mean Energy")
 plt.plot(np.where(np.min(std)==std)[0][0], np.min(std), "o", label="Minimum STD of Energy")
 plt.xlabel("Iteration")
 plt.ylabel("STD Energy")
@@ -114,6 +116,7 @@ plt.savefig("res/std_"+str(interaction)+".pdf")
 plt.show()
 
 plt.plot(range(c), std)
+plt.plot(np.where(np.min(mean)==mean)[0][0], std[np.where(np.min(mean)==mean)[0][0]], "o", label="Minimum Mean Energy")
 plt.plot(np.where(np.min(std)==std)[0][0], np.min(std), "o", label="Minimum STD of Energy")
 plt.yscale("log")
 plt.xlabel("Iteration")

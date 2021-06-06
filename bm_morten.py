@@ -217,6 +217,7 @@ def EnergyMinimization(a:np.ndarray,b:np.ndarray,w:np.ndarray) -> tuple:
 tot_time = time.time()
 #Here starts the main program with variable declarations
 np.random.seed(2)
+seed(2)
 NumberParticles = 2
 Dimension = 2
 NumberHidden = 2
